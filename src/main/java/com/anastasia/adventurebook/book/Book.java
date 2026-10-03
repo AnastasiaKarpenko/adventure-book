@@ -1,18 +1,6 @@
 package com.anastasia.adventurebook.book;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +41,10 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories = new HashSet<>();
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "book_id", nullable = false)
+    private List<Section> sections = new ArrayList<>();
+
     protected Book() {
     }
 
@@ -88,5 +80,13 @@ public class Book {
 
     public Set<Category> getCategories() {
         return Collections.unmodifiableSet(categories);
+    }
+
+    public void addSection(Section section) {
+        sections.add(section);
+    }
+
+    public List<Section> getSections() {
+        return Collections.unmodifiableList(sections);
     }
 }
