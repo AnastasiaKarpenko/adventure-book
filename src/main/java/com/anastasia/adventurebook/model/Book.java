@@ -1,4 +1,4 @@
-package com.anastasia.adventurebook.book;
+package com.anastasia.adventurebook.model;
 
 import jakarta.persistence.*;
 
