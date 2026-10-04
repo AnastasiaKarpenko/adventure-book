@@ -24,3 +24,10 @@ See [docs/DECISIONS.md](docs/DECISIONS.md) for design decisions.
   for the foreign key and order column. Negligible for startup import of a few
   books; for large volumes I would make the relations bidirectional
   (`@ManyToOne` on the child, `mappedBy` on the parent).
+- Book categories are loaded lazily per book, so listing books issues one
+  extra query per book (N+1). Fine for a small catalog; for large volumes
+  I would fetch categories together with books (`@EntityGraph` or `join fetch`).
+- The book list is not paginated. With a large catalog I would use
+  Spring Data `Pageable` (`page` and `size` parameters).
+- Books are always sorted by title. Sorting could be made configurable
+  (e.g. `?sort=author`).
