@@ -4,7 +4,32 @@ REST API to browse a collection of adventure books and play through them.
 
 ## Build and run
 
-_TODO_
+Requirements: Java 21. Maven is not required — the project includes the Maven Wrapper.
+
+Run tests:
+
+    ./mvnw test
+
+Start the application:
+
+    ./mvnw spring-boot:run
+
+Or build and run the JAR:
+
+    ./mvnw package
+    java -jar target/adventure-book-0.0.1-SNAPSHOT.jar
+
+On Windows use `mvnw.cmd` instead of `./mvnw`.
+
+The application starts on port 8080.
+
+## How to try
+
+After startup:
+
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- H2 console: http://localhost:8080/h2-console
+  (JDBC URL `jdbc:h2:mem:adventurebook`, user `sa`, empty password)
 
 ## Assumptions
 
