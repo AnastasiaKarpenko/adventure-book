@@ -2,6 +2,7 @@ package com.anastasia.adventurebook.importer;
 
 import com.anastasia.adventurebook.model.Book;
 import com.anastasia.adventurebook.repository.BookRepository;
+import com.anastasia.adventurebook.validation.BookValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -15,6 +16,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Component
 public class BookImporter implements ApplicationRunner {
@@ -27,11 +29,14 @@ public class BookImporter implements ApplicationRunner {
     private final BookJsonMapper bookJsonMapper;
     private final BookRepository bookRepository;
     private final ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+    private final BookValidator bookValidator;
 
-    public BookImporter(JsonMapper jsonMapper, BookJsonMapper bookJsonMapper, BookRepository bookRepository) {
+    public BookImporter(JsonMapper jsonMapper, BookJsonMapper bookJsonMapper, BookRepository bookRepository,
+                        BookValidator bookValidator) {
         this.jsonMapper = jsonMapper;
         this.bookJsonMapper = bookJsonMapper;
         this.bookRepository = bookRepository;
+        this.bookValidator = bookValidator;
     }
 
     @Override
@@ -58,6 +63,11 @@ public class BookImporter implements ApplicationRunner {
             if (bookRepository.existsByTitleAndAuthor(book.getTitle(), book.getAuthor())) {
                 log.info("Skipping {}: book '{}' is already imported", fileName, book.getTitle());
                 return false;
+            }
+            List<String> errors = bookValidator.validate(book);
+            book.applyValidation(errors);
+            if (!errors.isEmpty()) {
+                log.warn("Book '{}' is invalid: {}", book.getTitle(), errors);
             }
             bookRepository.save(book);
             log.info("Imported '{}' from {}", book.getTitle(), fileName);
