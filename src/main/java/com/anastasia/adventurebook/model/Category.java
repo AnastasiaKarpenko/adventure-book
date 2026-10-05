@@ -24,7 +24,7 @@ public class Category {
     }
 
     public Category(String name) {
-        this.name = name.trim().toUpperCase(Locale.ROOT);
+        this.name = normalizeName(name);
     }
 
     public Long getId() {
@@ -33,5 +33,9 @@ public class Category {
 
     public String getName() {
         return name;
+    }
+
+    public static String normalizeName(String name) {
+        return name.trim().toUpperCase(Locale.ROOT);
     }
 }

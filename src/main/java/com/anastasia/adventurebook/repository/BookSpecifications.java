@@ -28,7 +28,7 @@ public final class BookSpecifications {
     public static Specification<Book> hasCategory(String category) {
         return (root, query, cb) -> {
             Join<Book, Category> categories = root.join("categories");
-            return cb.equal(categories.get("name"), category.trim().toUpperCase(Locale.ROOT));
+            return cb.equal(categories.get("name"), Category.normalizeName(category));
         };
     }
 

@@ -4,8 +4,10 @@ import com.anastasia.adventurebook.dto.BookDetailsResponse;
 import com.anastasia.adventurebook.dto.BookSummaryResponse;
 import com.anastasia.adventurebook.exception.NotFoundException;
 import com.anastasia.adventurebook.model.Book;
+import com.anastasia.adventurebook.model.Category;
 import com.anastasia.adventurebook.model.Difficulty;
 import com.anastasia.adventurebook.repository.BookRepository;
+import com.anastasia.adventurebook.repository.CategoryRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,11 @@ import static com.anastasia.adventurebook.repository.BookSpecifications.titleCon
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final CategoryRepository categoryRepository;
 
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, CategoryRepository categoryRepository) {
         this.bookRepository = bookRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -53,8 +57,31 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public BookDetailsResponse getDetails(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Book with id " + id + " not found"));
+        return BookDetailsResponse.from(findBook(id));
+    }
+
+    @Transactional
+    public BookDetailsResponse addCategory(Long bookId, String categoryName) {
+        Book book = findBook(bookId);
+        book.addCategory(findCategory(categoryName));
         return BookDetailsResponse.from(book);
+    }
+
+    @Transactional
+    public BookDetailsResponse removeCategory(Long bookId, String categoryName) {
+        Book book = findBook(bookId);
+        book.removeCategory(findCategory(categoryName));
+        return BookDetailsResponse.from(book);
+    }
+
+    private Book findBook(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Book with id " + id + " not found"));
+    }
+
+    private Category findCategory(String name) {
+        String normalized = Category.normalizeName(name);
+        return categoryRepository.findByName(normalized)
+                .orElseThrow(() -> new NotFoundException("Category '" + normalized + "' not found"));
     }
 }
