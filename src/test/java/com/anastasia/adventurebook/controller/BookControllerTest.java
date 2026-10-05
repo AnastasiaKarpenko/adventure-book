@@ -92,6 +92,8 @@ class BookControllerTest {
     @Test
     void rejectsUnknownDifficulty() throws Exception {
         mockMvc.perform(get("/books").param("difficulty", "VERY_HARD"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value(
+                        "Invalid value 'VERY_HARD' for parameter 'difficulty'. Allowed: EASY, MEDIUM, HARD"));
     }
 }
