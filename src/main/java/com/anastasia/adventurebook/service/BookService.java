@@ -1,6 +1,8 @@
 package com.anastasia.adventurebook.service;
 
+import com.anastasia.adventurebook.dto.BookDetailsResponse;
 import com.anastasia.adventurebook.dto.BookSummaryResponse;
+import com.anastasia.adventurebook.exception.NotFoundException;
 import com.anastasia.adventurebook.model.Book;
 import com.anastasia.adventurebook.model.Difficulty;
 import com.anastasia.adventurebook.repository.BookRepository;
@@ -47,5 +49,12 @@ public class BookService {
         return bookRepository.findAll(Specification.allOf(filters), Sort.by("title")).stream()
                 .map(BookSummaryResponse::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public BookDetailsResponse getDetails(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Book with id " + id + " not found"));
+        return BookDetailsResponse.from(book);
     }
 }

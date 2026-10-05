@@ -89,4 +89,11 @@ public class Book {
     public List<Section> getSections() {
         return Collections.unmodifiableList(sections);
     }
+
+    public List<String> getCategoryNames() {
+        return categories.stream()
+                .map(Category::getName)
+                .sorted()
+                .toList();
+    }
 }
