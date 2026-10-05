@@ -76,7 +76,8 @@ The provided JSON books have no categories.
 - Attaching a category to a book (`PUT /books/{id}/categories/{name}`)
   accepts only existing categories; unknown names return 404.
 - Names are normalized to upper case.
-- A category can be deleted only if no book uses it; otherwise 409.
+- Deleting categories is not implemented (not required by the spec).
+  If needed: allow deleting only unused categories, otherwise 409.
 
 **Reason:** Supports both readings of the spec (fixed list and "etc.")
 without code changes. Separating creation from attaching prevents typos
