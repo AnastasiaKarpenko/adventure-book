@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -95,5 +97,72 @@ class BookControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value(
                         "Invalid value 'VERY_HARD' for parameter 'difficulty'. Allowed: EASY, MEDIUM, HARD"));
+    }
+
+    @Test
+    void returnsDetailsWithValidationErrors() throws Exception {
+        mockMvc.perform(get("/books/{id}", bookId("Pirates of the Jade Sea")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Pirates of the Jade Sea"))
+                .andExpect(jsonPath("$.valid").value(false))
+                .andExpect(jsonPath("$.validationErrors", hasSize(2)))
+                .andExpect(jsonPath("$.validationErrors[0]")
+                        .value("Section 1, option 1 points to non-existent section 999"));
+    }
+
+    @Test
+    void returnsDetailsOfValidBook() throws Exception {
+        mockMvc.perform(get("/books/{id}", bookId("The Prisoner (fixed)")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valid").value(true))
+                .andExpect(jsonPath("$.validationErrors", hasSize(0)));
+    }
+
+    @Test
+    void returns404ForUnknownBook() throws Exception {
+        mockMvc.perform(get("/books/{id}", 999))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Book with id 999 not found"));
+    }
+
+    @Test
+    @Transactional
+    void addsCategoryIgnoringCaseAndIsIdempotent() throws Exception {
+        Long id = bookId("The Crystal Caverns");
+
+        mockMvc.perform(put("/books/{id}/categories/{name}", id, "horror"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.categories", hasSize(1)))
+                .andExpect(jsonPath("$.categories[0]").value("HORROR"));
+
+        mockMvc.perform(put("/books/{id}/categories/{name}", id, "HORROR"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.categories", hasSize(1)));
+    }
+
+    @Test
+    @Transactional
+    void removesCategory() throws Exception {
+        Long id = bookId("The Crystal Caverns");
+        mockMvc.perform(put("/books/{id}/categories/{name}", id, "HORROR"));
+
+        mockMvc.perform(delete("/books/{id}/categories/{name}", id, "horror"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.categories", hasSize(0)));
+    }
+
+    @Test
+    void returns404ForUnknownCategory() throws Exception {
+        mockMvc.perform(put("/books/{id}/categories/{name}", bookId("The Crystal Caverns"), "comedy"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Category 'COMEDY' not found"));
+    }
+
+    private Long bookId(String title) {
+        return bookRepository.findAll().stream()
+                .filter(book -> book.getTitle().equals(title))
+                .findFirst()
+                .orElseThrow()
+                .getId();
     }
 }
