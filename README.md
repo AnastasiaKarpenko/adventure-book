@@ -56,3 +56,9 @@ See [docs/DECISIONS.md](docs/DECISIONS.md) for design decisions.
   Spring Data `Pageable` (`page` and `size` parameters).
 - Books are always sorted by title. Sorting could be made configurable
   (e.g. `?sort=author`).
+- A repeated identical choice request (e.g. a double click) is processed as a new move.
+  The client could send the section it moves from (`{"option": 0, "fromSection": 20}`),
+  and the server would reject the move with 409 if the game is no longer there.
+- There is no authentication, and game ids are sequential, so anyone who knows
+  or guesses a game id can make moves in that game. In production, games would
+  belong to an authenticated player, and ids would not be guessable (e.g. UUIDs).
