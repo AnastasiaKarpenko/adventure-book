@@ -1,0 +1,58 @@
+package com.anastasia.adventurebook.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+@Entity
+@Table(name = "game")
+public class Game {
+
+    public static final int STARTING_HEALTH = 10;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
+
+    @Column(name = "current_section_number", nullable = false)
+    private int currentSectionNumber;
+
+    @Column(nullable = false)
+    private int health;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GameStatus status;
+
+    @Version
+    private long version;
+
+    protected Game() {
+    }
+
+    public Game(Book book, int startSectionNumber) {
+        this.book = book;
+        this.currentSectionNumber = startSectionNumber;
+        this.health = STARTING_HEALTH;
+        this.status = GameStatus.IN_PROGRESS;
+    }
+
+    public Long getId() { return id; }
+    public Book getBook() { return book; }
+    public int getCurrentSectionNumber() { return currentSectionNumber; }
+    public int getHealth() { return health; }
+    public GameStatus getStatus() { return status; }
+}
