@@ -39,6 +39,9 @@ After startup:
   empty files, missing title/author/difficulty, sections without id/type/text,
   options without `gotoId`, duplicate section ids within a book.
 - Health has no upper limit; the spec defines only the start value (10) and death at 0.
+- When a consequence brings health to 0 or below, the player dies in the section
+  where the choice was made and does not move to the next section. Death takes
+  precedence over reaching an ending.
 
 See [docs/DECISIONS.md](docs/DECISIONS.md) for design decisions.
 
