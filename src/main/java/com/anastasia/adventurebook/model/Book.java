@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -95,5 +96,16 @@ public class Book {
                 .map(Category::getName)
                 .sorted()
                 .toList();
+    }
+    public Optional<Section> findSection(int number) {
+        return sections.stream()
+                .filter(section -> section.getNumber() == number)
+                .findFirst();
+    }
+
+    public Optional<Section> findBeginning() {
+        return sections.stream()
+                .filter(section -> section.getType() == SectionType.BEGIN)
+                .findFirst();
     }
 }

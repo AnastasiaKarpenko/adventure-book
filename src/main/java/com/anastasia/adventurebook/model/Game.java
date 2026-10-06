@@ -55,4 +55,10 @@ public class Game {
     public int getCurrentSectionNumber() { return currentSectionNumber; }
     public int getHealth() { return health; }
     public GameStatus getStatus() { return status; }
+
+    public Section getCurrentSection() {
+        return book.findSection(currentSectionNumber)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Section " + currentSectionNumber + " not found in book " + book.getId()));
+    }
 }
