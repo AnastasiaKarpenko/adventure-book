@@ -3,6 +3,7 @@ package com.anastasia.adventurebook.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -55,5 +56,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             detail += ". Allowed: " + allowed;
         }
         return ResponseEntity.status(status).body(ProblemDetail.forStatusAndDetail(status, detail));
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLock(OptimisticLockingFailureException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "The resource was modified by another request. Reload it and try again.");
     }
 }
