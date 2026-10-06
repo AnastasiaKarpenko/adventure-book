@@ -46,4 +46,11 @@ public class GameService {
         return gameRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Game with id " + id + " not found"));
     }
+
+    @Transactional
+    public GameResponse choose(Long gameId, int optionIndex) {
+        Game game = findGame(gameId);
+        game.choose(optionIndex);
+        return GameResponse.from(game, null);
+    }
 }

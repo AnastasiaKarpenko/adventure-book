@@ -13,6 +13,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
+import java.util.List;
+import com.anastasia.adventurebook.exception.BadRequestException;
+import com.anastasia.adventurebook.exception.ConflictException;
+
 @Entity
 @Table(name = "game")
 public class Game {
@@ -60,5 +64,24 @@ public class Game {
         return book.findSection(currentSectionNumber)
                 .orElseThrow(() -> new IllegalStateException(
                         "Section " + currentSectionNumber + " not found in book " + book.getId()));
+    }
+
+    public SectionOption choose(int optionIndex) {
+        if (status != GameStatus.IN_PROGRESS) {
+            throw new ConflictException("Game " + id + " is already finished (" + status + ")");
+        }
+        List<SectionOption> options = getCurrentSection().getOptions();
+        if (optionIndex < 0 || optionIndex >= options.size()) {
+            throw new BadRequestException("Option " + optionIndex + " does not exist in section "
+                    + currentSectionNumber + ". Valid options: 0.." + (options.size() - 1));
+        }
+
+        SectionOption chosen = options.get(optionIndex);
+        currentSectionNumber = chosen.getGotoNumber();
+
+        if (getCurrentSection().getType() == SectionType.END) {
+            status = GameStatus.COMPLETED;
+        }
+        return chosen;
     }
 }
