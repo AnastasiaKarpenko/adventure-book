@@ -4,8 +4,10 @@ import com.anastasia.adventurebook.dto.GameResponse;
 import com.anastasia.adventurebook.exception.ConflictException;
 import com.anastasia.adventurebook.exception.NotFoundException;
 import com.anastasia.adventurebook.model.Book;
+import com.anastasia.adventurebook.model.Consequence;
 import com.anastasia.adventurebook.model.Game;
 import com.anastasia.adventurebook.model.Section;
+import com.anastasia.adventurebook.model.SectionOption;
 import com.anastasia.adventurebook.repository.BookRepository;
 import com.anastasia.adventurebook.repository.GameRepository;
 import org.springframework.stereotype.Service;
@@ -50,7 +52,10 @@ public class GameService {
     @Transactional
     public GameResponse choose(Long gameId, int optionIndex) {
         Game game = findGame(gameId);
-        game.choose(optionIndex);
-        return GameResponse.from(game, null);
+        SectionOption chosen = game.choose(optionIndex);
+        String consequenceText = chosen.getConsequence()
+                .map(Consequence::text)
+                .orElse(null);
+        return GameResponse.from(game, consequenceText);
     }
 }

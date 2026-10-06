@@ -77,11 +77,24 @@ public class Game {
         }
 
         SectionOption chosen = options.get(optionIndex);
-        currentSectionNumber = chosen.getGotoNumber();
+        chosen.getConsequence().ifPresent(this::applyConsequence);
 
+        if (health <= 0) {
+            status = GameStatus.DEAD;
+            return chosen;
+        }
+
+        currentSectionNumber = chosen.getGotoNumber();
         if (getCurrentSection().getType() == SectionType.END) {
             status = GameStatus.COMPLETED;
         }
         return chosen;
+    }
+
+    private void applyConsequence(Consequence consequence) {
+        health += switch (consequence.type()) {
+            case LOSE_HEALTH -> -consequence.value();
+            case GAIN_HEALTH -> consequence.value();
+        };
     }
 }
