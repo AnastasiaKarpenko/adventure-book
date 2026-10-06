@@ -3,6 +3,7 @@ package com.anastasia.adventurebook.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -62,5 +63,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleOptimisticLock(OptimisticLockingFailureException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
                 "The resource was modified by another request. Reload it and try again.");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation: {}", ex.getMostSpecificCause().getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "The request conflicts with existing data.");
     }
 }
