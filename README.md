@@ -237,3 +237,6 @@ like at startup, and duplicates (same title and author) return 409.
 - There is no authentication, and game ids are sequential, so anyone who knows
   or guesses a game id can make moves in that game. In production, games would
   belong to an authenticated player, and ids would not be guessable (e.g. UUIDs).
+- Swagger UI is generated from the code without descriptions; the endpoints and
+  error codes are documented in this README. `@Operation` and `@ApiResponse`
+  annotations would make the generated docs self-describing.
